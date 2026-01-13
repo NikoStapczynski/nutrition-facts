@@ -1,0 +1,36 @@
+{
+  "name": "nutrition-facts",
+  "version": "1.0.0",
+  "description": "A fast command-line tool to get macronutrient information using the USDA FoodData Central API",
+  "main": "nf",
+  "bin": {
+    "nf": "./nf"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NikoStapczynski/nutrition-facts.git"
+  },
+  "keywords": [
+    "nutrition",
+    "food",
+    "macro",
+    "macronutrients",
+    "usda",
+    "cli",
+    "terminal",
+    "diet",
+    "health"
+  ],
+  "author": "Niko Stapczynski",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/NikoStapczynski/nutrition-facts/issues"
+  },
+  "homepage": "https://github.com/NikoStapczynski/nutrition-facts#readme",
+  "engines": {
+    "node": ">=12.0.0"
+  }
+}

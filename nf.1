@@ -1,0 +1,61 @@
+.TH NF 1 "January 2026" "nf 1.0.0" "User Commands"
+.SH NAME
+nf \- command-line nutrition facts tool
+.SH SYNOPSIS
+.B nf
+[\fIOPTION\fR]...
+[\fIFOOD_ITEM\fR]...
+.SH DESCRIPTION
+.B nf
+is a command-line tool that provides macronutrient information (protein, carbohydrates, and fat) for food items using the USDA FoodData Central API.
+.PP
+The tool queries the USDA nutrition database and displays nutritional information in a clean, color-coded format. When multiple food items are specified, it also displays total macronutrients.
+.SH OPTIONS
+.TP
+.B \-\-setup \fIAPI_KEY\fR
+Configure the USDA FoodData Central API key. The key is stored in ~/.config/nf/config.json
+.TP
+.B \-\-help, \-h
+Display help information and exit
+.SH EXAMPLES
+.TP
+Get nutrition facts for a single food:
+.B nf apple
+.TP
+Get nutrition facts for multiple foods:
+.B nf chicken breast rice broccoli
+.TP
+Foods with spaces require quotes:
+.B nf "sweet potato" "peanut butter"
+.TP
+Configure API key:
+.B nf \-\-setup YOUR_API_KEY_HERE
+.SH FILES
+.TP
+.I ~/.config/nf/config.json
+Configuration file containing the USDA API key
+.SH EXIT STATUS
+.TP
+.B 0
+Success
+.TP
+.B 1
+Error (no API key configured, API error, or invalid usage)
+.SH API KEY
+To use this tool, you need a free API key from the USDA FoodData Central:
+.PP
+.RS
+https://fdc.nal.usda.gov/api-key-signup.html
+.RE
+.SH AUTHOR
+Written by Niko Stapczynski.
+.SH REPORTING BUGS
+Report bugs at: https://github.com/NikoStapczynski/nutrition-facts/issues
+.SH COPYRIGHT
+Copyright © 2026 Niko Stapczynski.
+License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
+.br
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+.SH SEE ALSO
+Full documentation at: https://github.com/NikoStapczynski/nutrition-facts
