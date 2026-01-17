@@ -18,6 +18,18 @@ const colors = {
   dim: '\x1b[2m'
 };
 
+function c(color, text) {
+  return `${colors[color]}${text}${colors.reset}`;
+}
+
+// Nutrient IDs and names for USDA API
+const NUTRIENTS = {
+  CALORIES: { id: 1008, name: 'Energy' },
+  PROTEIN: { id: 1003, name: 'Protein' },
+  CARBS: { id: 1005, name: 'Carbohydrate, by difference' },
+  FAT: { id: 1004, name: 'Total lipid (fat)' }
+};
+
 function loadConfig() {
   try {
     if (fs.existsSync(CONFIG_FILE)) {
@@ -45,13 +57,13 @@ function saveConfig(apiKey) {
 function httpsGet(url) {
   return new Promise((resolve, reject) => {
     https.get(url, (res) => {
-      let data = '';
-      res.on('data', (chunk) => data += chunk);
+      const chunks = [];
+      res.on('data', (chunk) => chunks.push(chunk));
       res.on('end', () => {
         if (res.statusCode === 200) {
-          resolve(JSON.parse(data));
+          resolve(JSON.parse(Buffer.concat(chunks).toString('utf8')));
         } else {
-          reject(new Error(`HTTP ${res.statusCode}: ${data}`));
+          reject(new Error(`HTTP ${res.statusCode}: ${Buffer.concat(chunks).toString('utf8')}`));
         }
       });
     }).on('error', reject);
@@ -76,16 +88,16 @@ async function getNutritionData(foodItem, apiKey, quantity, unit) {
 
     if (food.foodNutrients) {
       food.foodNutrients.forEach(nutrient => {
-        if (nutrient.nutrientId === 1008 || nutrient.nutrientName === 'Energy') {
+        if (nutrient.nutrientId === NUTRIENTS.CALORIES.id || nutrient.nutrientName === NUTRIENTS.CALORIES.name) {
           calories = nutrient.value || 0;
         }
-        if (nutrient.nutrientId === 1003 || nutrient.nutrientName === 'Protein') {
+        if (nutrient.nutrientId === NUTRIENTS.PROTEIN.id || nutrient.nutrientName === NUTRIENTS.PROTEIN.name) {
           protein = nutrient.value || 0;
         }
-        if (nutrient.nutrientId === 1005 || nutrient.nutrientName === 'Carbohydrate, by difference') {
+        if (nutrient.nutrientId === NUTRIENTS.CARBS.id || nutrient.nutrientName === NUTRIENTS.CARBS.name) {
           carbs = nutrient.value || 0;
         }
-        if (nutrient.nutrientId === 1004 || nutrient.nutrientName === 'Total lipid (fat)') {
+        if (nutrient.nutrientId === NUTRIENTS.FAT.id || nutrient.nutrientName === NUTRIENTS.FAT.name) {
           fat = nutrient.value || 0;
         }
       });
@@ -93,8 +105,9 @@ async function getNutritionData(foodItem, apiKey, quantity, unit) {
 
     // Calculate grams
     let grams;
-    if (unitConversions[unit]) {
-      grams = quantity * unitConversions[unit];
+    const conversion = getUnitConversion(unit);
+    if (conversion) {
+      grams = quantity * conversion;
     } else {
       // Assume it's a serving, look for portion
       let portionWeight = null;
@@ -168,52 +181,38 @@ ${colors.dim}Your API key is stored in: ${CONFIG_FILE}${colors.reset}
 `);
 }
 
-// Unit conversions to grams
-const unitConversions = {
-  g: 1,
-  gram: 1,
-  grams: 1,
-  kg: 1000,
-  kilogram: 1000,
-  kilograms: 1000,
-  lb: 453.592,
-  lbs: 453.592,
-  pound: 453.592,
-  pounds: 453.592,
-  oz: 28.3495,
-  ounce: 28.3495,
-  ounces: 28.3495,
-  // Special cases
-  egg: 50, // approximate average egg weight
-  eggs: 50,
-  // Volume conversions (approximate, assuming water density)
-  cup: 240, // 240g for water
-  cups: 240,
-  tbsp: 15,
-  tablespoon: 15,
-  tablespoons: 15,
-  tsp: 5,
-  teaspoon: 5,
-  teaspoons: 5,
-  ml: 1,
-  milliliter: 1,
-  milliliters: 1,
-  l: 1000,
-  liter: 1000,
-  liters: 1000,
-  gal: 3785.41,
-  gallon: 3785.41,
-  gallons: 3785.41,
-  qt: 946.353,
-  quart: 946.353,
-  quarts: 946.353,
-  pt: 473.176,
-  pint: 473.176,
-  pints: 473.176,
-  fl_oz: 29.5735,
-  fluid_ounce: 29.5735,
-  fluid_ounces: 29.5735,
+// Unit conversions to grams (canonical units only)
+const UNIT_CONVERSIONS = {
+  g: 1, kg: 1000,
+  lb: 453.592, oz: 28.3495,
+  egg: 50,
+  cup: 240, tbsp: 15, tsp: 5,
+  ml: 1, l: 1000,
+  gal: 3785.41, qt: 946.353, pt: 473.176, fl_oz: 29.5735
 };
+
+// Unit aliases -> canonical unit
+const UNIT_ALIASES = {
+  gram: 'g', grams: 'g',
+  kilogram: 'kg', kilograms: 'kg',
+  lbs: 'lb', pound: 'lb', pounds: 'lb',
+  ounce: 'oz', ounces: 'oz',
+  eggs: 'egg',
+  cups: 'cup',
+  tablespoon: 'tbsp', tablespoons: 'tbsp',
+  teaspoon: 'tsp', teaspoons: 'tsp',
+  milliliter: 'ml', milliliters: 'ml',
+  liter: 'l', liters: 'l',
+  gallon: 'gal', gallons: 'gal',
+  quart: 'qt', quarts: 'qt',
+  pint: 'pt', pints: 'pt',
+  fluid_ounce: 'fl_oz', fluid_ounces: 'fl_oz'
+};
+
+function getUnitConversion(unit) {
+  const canonical = UNIT_ALIASES[unit] || unit;
+  return UNIT_CONVERSIONS[canonical] || null;
+}
 
 function parseFoodItem(item) {
   const trimmed = item.trim();
@@ -229,24 +228,14 @@ function parseFoodItem(item) {
   const firstWord = restParts[0].toLowerCase();
   let unit = 'g';
   let food = rest;
-  if (unitConversions.hasOwnProperty(firstWord)) {
-    // First word is a unit
+  if (getUnitConversion(firstWord)) {
     unit = firstWord;
     food = restParts.slice(1).join(' ');
     if (!food.trim()) {
-      // If no food after unit, assume unit is the food (e.g., 500 eggs)
       food = firstWord;
     }
   }
   return { quantity, unit, food: food.trim() };
-}
-
-function getGrams(quantity, unit) {
-  const conversion = unitConversions[unit];
-  if (!conversion) {
-    throw new Error(`Unknown unit: ${unit}`);
-  }
-  return quantity * conversion;
 }
 
 async function main() {

@@ -50,11 +50,11 @@ nf chicken breast, rice, broccoli
 
 # Foods with quantities and units
 nf 1 lb ground beef, 1 gal milk, 500 eggs
-# 1 lb Beef, ground, 80% lean meat / 20% fat, patty, cooked, broiled: 1120 calories, 130g protein, 0g carbs, 67g fat
-# 1 gal Milk, whole, 3.25% milkfat, with added vitamin D: 1460 calories, 72g protein, 104g carbs, 80g fat
-# 500 eggs Eggs, Grade A, Large, egg whole: 3575 calories, 325g protein, 25g carbs, 350g fat
+# 1 lb GROUND BEEF: 1415 calories, 77g protein, 0g carbs, 122g fat
+# 1 gal MILK: 2082 calories, 128g protein, 192g carbs, 80g fat
+# 500 eggs EGGS: 142750 calories, 893g protein, 14275g carbs, 8925g fat
 # ---
-# Total: 6155 calories, 527g protein, 129g carbs, 497g fat
+# Total: 146247 calories, 1098g protein, 14467g carbs, 9127g fat
 
 # Mixed formats
 nf apple, 200g chicken breast, 1 cup rice
@@ -66,6 +66,20 @@ nf apple, 200g chicken breast, 1 cup rice
 
 # View help
 nf --help
+# nf - Nutrition Facts CLI Tool
+#
+# USAGE:
+#   nf <quantity> <unit> <food_item>[, <quantity> <unit> <food_item2>, ...]
+#   nf <food_item> [food_item2] [food_item3] ...  (assumes 1 serving each)
+#   nf --setup <api_key>
+#   nf --help
+#
+# EXAMPLES:
+#   nf apple
+#   nf "chicken breast" rice broccoli
+#   nf 1 lb ground beef, 1 gal milk, 500 eggs
+#   nf 200g chicken breast, 1 cup rice
+#   nf --setup YOUR_API_KEY_HERE
 ```
 
 ### Supported Units
@@ -74,21 +88,7 @@ nf --help
 - **Volume**: cup, tbsp, tsp, ml, l, gal, qt, pt, fl_oz
 - **Special**: egg, eggs (50g each)
 
-### Example Output
 
-```
-$ nf apple banana
-Apples, raw, with skin (Includes foods for USDA's Food Distribution Program): 52 calories, 0g protein, 14g carbs, 0g fat
-Bananas, raw: 89 calories, 1g protein, 23g carbs, 0g fat
----
-Total: 141 calories, 1g protein, 37g carbs, 0g fat
-
-$ nf 1 lb ground beef, 500 eggs
-1 lb Beef, ground, 80% lean meat / 20% fat, patty, cooked, broiled: 1120 calories, 130g protein, 0g carbs, 67g fat
-500 eggs Eggs, Grade A, Large, egg whole: 3575 calories, 325g protein, 25g carbs, 350g fat
----
-Total: 4695 calories, 455g protein, 25g carbs, 417g fat
-```
 
 ## Configuration
 
